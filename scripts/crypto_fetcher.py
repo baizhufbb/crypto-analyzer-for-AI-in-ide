@@ -184,9 +184,6 @@ async def _run_full_task(
 ) -> Tuple[bool, str]:
     try:
         output_data = await collect_snapshot_async(client, exchange, symbol, interval, limit)
-        if output_data.get("klines"):
-            output_data["klines"].reverse()
-
         output_path = build_output_path(exchange, symbol, interval, output_data["klines"])
         save_json(output_data, output_path)
         print(

@@ -69,6 +69,11 @@ async def fetch_binance_klines_async(
                 "trades": int(entry[8]),
             }
         )
+    
+    # Binance API 返回的数据是按时间正序（最旧的在前），
+    # 我们统一转换为时间倒序（最新的在前），以便与 OKX 保持一致。
+    normalized.reverse()
+    
     return normalized
 
 

@@ -6,14 +6,20 @@ def calculate_indicators(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     为 K 线数据计算技术指标：MA、RSI、涨跌幅、波动率等。
     预计算这些指标可以节省 AI 分析时的计算时间。
+    
+    注意：输入 records 必须是按时间倒序排列（最新的在前，符合 binance/okx fetcher 的统一输出）。
+    但在计算指标时，为了逻辑简单，我们会先将其临时反转为正序（旧->新），
+    计算完成后再反转回来返回。
     """
     if not records:
         return records
 
-    result: List[Dict[str, Any]] = []
-    closes = [r["close"] for r in records]
+    # 临时反转为正序（旧->新）进行计算
+    records_sorted = records[::-1]
+    result_sorted: List[Dict[str, Any]] = []
+    closes = [r["close"] for r in records_sorted]
 
-    for i, record in enumerate(records):
+    for i, record in enumerate(records_sorted):
         enriched = record.copy()
 
         if i >= 19:
@@ -42,7 +48,7 @@ def calculate_indicators(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 enriched["rsi14"] = round(100 - (100 / (1 + rs)), 2)
 
         if i > 0:
-            prev_close = records[i - 1]["close"]
+            prev_close = records_sorted[i - 1]["close"]
             price_change = record["close"] - prev_close
             price_change_pct = (price_change / prev_close) * 100
             enriched["price_change"] = round(price_change, 8)
@@ -53,10 +59,10 @@ def calculate_indicators(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if i >= 14:
             true_ranges = []
             for j in range(max(1, i - 13), i + 1):
-                high = records[j]["high"]
-                low = records[j]["low"]
+                high = records_sorted[j]["high"]
+                low = records_sorted[j]["low"]
                 if j > 0:
-                    prev_close = records[j - 1]["close"]
+                    prev_close = records_sorted[j - 1]["close"]
                     tr = max(
                         high - low,
                         abs(high - prev_close),
@@ -81,8 +87,9 @@ def calculate_indicators(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             if mean > 0:
                 enriched["volatility_20_pct"] = round((std_dev / mean) * 100, 4)
 
-        result.append(enriched)
+        result_sorted.append(enriched)
 
-    return result
+    # 计算完成后，反转回倒序（最新的在前）返回
+    return result_sorted[::-1]
 
 

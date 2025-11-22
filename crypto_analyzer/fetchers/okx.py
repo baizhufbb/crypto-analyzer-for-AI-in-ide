@@ -96,9 +96,6 @@ async def fetch_okx_klines_async(
         )
 
     # OKX API 返回的数据是按时间倒序（最新的在前），
-    # 而指标计算和 Binance 格式都要求按时间正序（最旧的在前）。
-    normalized.reverse()
-
     return normalized
 
 
