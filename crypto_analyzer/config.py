@@ -7,4 +7,7 @@ OUTPUT_DIR = Path("data")
 BINANCE_BASE_URL = "https://fapi.binance.com"
 OKX_BASE_URL = "https://www.okx.com"
 
+BINANCE_MAX_CONCURRENT_REQUESTS = 5
+OKX_MAX_CONCURRENT_REQUESTS = 5
+
 

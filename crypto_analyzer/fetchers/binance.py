@@ -4,6 +4,7 @@ import requests
 import httpx
 
 from crypto_analyzer.config import BINANCE_BASE_URL
+from crypto_analyzer.rate_limiter import binance_public_limiter
 
 
 def list_binance_symbols(
@@ -39,11 +40,12 @@ async def fetch_binance_klines_async(
     interval: str,
     limit: int,
 ) -> List[Dict[str, Any]]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/klines",
-        params={"symbol": symbol.upper(), "interval": interval, "limit": limit},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/klines",
+            params={"symbol": symbol.upper(), "interval": interval, "limit": limit},
+            timeout=30,
+        )
     response.raise_for_status()
     raw_klines = response.json()
 
@@ -81,11 +83,12 @@ async def fetch_binance_24hr_ticker_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/ticker/24hr",
-        params={"symbol": symbol.upper()},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/ticker/24hr",
+            params={"symbol": symbol.upper()},
+            timeout=30,
+        )
     response.raise_for_status()
     ticker_data = response.json()
 
@@ -111,11 +114,12 @@ async def fetch_binance_funding_rate_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/premiumIndex",
-        params={"symbol": symbol.upper()},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/premiumIndex",
+            params={"symbol": symbol.upper()},
+            timeout=30,
+        )
     response.raise_for_status()
     premium_data = response.json()
 
@@ -135,11 +139,12 @@ async def fetch_binance_open_interest_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/openInterest",
-        params={"symbol": symbol.upper()},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/openInterest",
+            params={"symbol": symbol.upper()},
+            timeout=30,
+        )
     response.raise_for_status()
     oi_data = response.json()
 
@@ -157,11 +162,12 @@ async def fetch_binance_current_price_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/ticker/price",
-        params={"symbol": symbol.upper()},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/ticker/price",
+            params={"symbol": symbol.upper()},
+            timeout=30,
+        )
     response.raise_for_status()
     price_data = response.json()
 
@@ -179,11 +185,12 @@ async def fetch_binance_order_book_async(
     symbol: str,
     limit: int = 20,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{BINANCE_BASE_URL}/fapi/v1/depth",
-        params={"symbol": symbol.upper(), "limit": limit},
-        timeout=30,
-    )
+    async with binance_public_limiter:
+        response = await client.get(
+            f"{BINANCE_BASE_URL}/fapi/v1/depth",
+            params={"symbol": symbol.upper(), "limit": limit},
+            timeout=30,
+        )
     response.raise_for_status()
     depth_data = response.json()
 

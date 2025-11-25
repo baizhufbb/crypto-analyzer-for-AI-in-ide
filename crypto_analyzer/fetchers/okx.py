@@ -4,6 +4,7 @@ import requests
 import httpx
 
 from crypto_analyzer.config import OKX_BASE_URL
+from crypto_analyzer.rate_limiter import okx_public_limiter
 
 
 def _normalize_okx_interval(interval: str) -> str:
@@ -57,11 +58,12 @@ async def fetch_okx_klines_async(
     limit: int,
 ) -> List[Dict[str, Any]]:
     interval_okx = _normalize_okx_interval(interval)
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/market/candles",
-        params={"instId": symbol, "bar": interval_okx, "limit": str(limit)},
-        timeout=30,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/market/candles",
+            params={"instId": symbol, "bar": interval_okx, "limit": str(limit)},
+            timeout=30,
+        )
     response.raise_for_status()
     result = response.json()
 
@@ -103,11 +105,12 @@ async def fetch_okx_24hr_ticker_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/market/ticker",
-        params={"instId": symbol},
-        timeout=10,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/market/ticker",
+            params={"instId": symbol},
+            timeout=10,
+        )
     response.raise_for_status()
     result = response.json()
 
@@ -134,11 +137,12 @@ async def fetch_okx_funding_rate_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/public/funding-rate",
-        params={"instId": symbol},
-        timeout=30,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/public/funding-rate",
+            params={"instId": symbol},
+            timeout=30,
+        )
     response.raise_for_status()
     result = response.json()
 
@@ -166,11 +170,12 @@ async def fetch_okx_open_interest_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/public/open-interest",
-        params={"instId": symbol},
-        timeout=30,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/public/open-interest",
+            params={"instId": symbol},
+            timeout=30,
+        )
     response.raise_for_status()
     result = response.json()
 
@@ -196,11 +201,12 @@ async def fetch_okx_current_price_async(
     client: httpx.AsyncClient,
     symbol: str,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/market/ticker",
-        params={"instId": symbol},
-        timeout=10,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/market/ticker",
+            params={"instId": symbol},
+            timeout=10,
+        )
     response.raise_for_status()
     result = response.json()
 
@@ -220,11 +226,12 @@ async def fetch_okx_order_book_async(
     symbol: str,
     limit: int = 20,
 ) -> Dict[str, Any]:
-    response = await client.get(
-        f"{OKX_BASE_URL}/api/v5/market/books",
-        params={"instId": symbol, "sz": str(limit)},
-        timeout=30,
-    )
+    async with okx_public_limiter:
+        response = await client.get(
+            f"{OKX_BASE_URL}/api/v5/market/books",
+            params={"instId": symbol, "sz": str(limit)},
+            timeout=30,
+        )
     response.raise_for_status()
     result = response.json()
 
